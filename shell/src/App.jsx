@@ -52,10 +52,20 @@ function App() {
     // Écouter les mises à jour du panier pour le badge
     const unsubscribe = eventBus.on('CART_UPDATED', (cartData) => {
       setCartCount(cartData.totalItems || 0);
-    });
+    }, 'shell');
 
     // Cleanup pour éviter les fuites mémoire
     return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    // Écouter la réinitialisation du panier
+    const unsubscribeClear = eventBus.on('cart:clear', () => {
+      setCartCount(0);
+    }, 'shell');
+
+    // Cleanup pour éviter les fuites mémoire
+    return unsubscribeClear;
   }, []);
 
   return (

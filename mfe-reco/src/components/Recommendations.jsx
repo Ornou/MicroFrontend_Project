@@ -43,11 +43,11 @@ function Recommendations() {
     };
 
     eventBus.on('CART_UPDATED', buildRecommendations, 'mfe-reco');
-    eventBus.on('CLEAR_CART', handleClearCart, 'mfe-reco');
+    eventBus.on('cart:clear', handleClearCart, 'mfe-reco');
 
     return () => {
       eventBus.off('CART_UPDATED', buildRecommendations);
-      eventBus.off('CLEAR_CART', handleClearCart);
+      eventBus.off('cart:clear', handleClearCart);
     };
   }, []);
 

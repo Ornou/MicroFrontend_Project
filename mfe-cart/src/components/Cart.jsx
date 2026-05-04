@@ -50,7 +50,7 @@ function Cart() {
 
   const handleClear = () => {
     setItems([]);
-    eventBus.emit('CLEAR_CART', null);
+    eventBus.emit('cart:clear', { timestamp: Date.now() });
   };
 
   return (
