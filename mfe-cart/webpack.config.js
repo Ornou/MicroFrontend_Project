@@ -10,6 +10,9 @@ module.exports = {
     historyApiFallback: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
   },
+  output: {
+    publicPath: 'http://localhost:3002/',
+  },
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
@@ -36,7 +39,15 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      // TODO: configurer ce MFE pour exposer le composant Cart
+      name: 'mfe_cart',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './Cart': './src/components/Cart',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+      },
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
