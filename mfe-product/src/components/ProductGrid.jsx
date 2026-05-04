@@ -1,38 +1,30 @@
 import React from 'react';
-import eventBus from 'shared/eventBus';
-import PRODUCTS from 'shared/products';
+import eventBus from '../../../shared/eventBus';
 import './ProductGrid.css';
 
-function ProductCard({ product, onAdd }) {
-  return (
-    <div className="product-card">
-      <div className="product-image" data-category={product.category}>
-        {product.category}
-      </div>
-      <h3 className="product-name">{product.name}</h3>
-      <p className="product-price">{product.price} EUR</p>
-      <button className="add-button" onClick={() => onAdd(product)}>
-        Ajouter au panier
-      </button>
-    </div>
-  );
-}
+const products = [
+  { id: 1, name: 'Super Mario Bros.', price: 29.99, image: 'mario.png' },
+  { id: 2, name: 'The Legend of Zelda', price: 49.99, image: 'zelda.png' },
+  { id: 3, name: 'Donkey Kong', price: 39.99, image: 'donkey.png' },
+];
 
-function ProductGrid() {
-  const handleAdd = (product) => {
-    // TODO: notifier le reste de l'application qu'un produit a ete ajoute
+const ProductGrid = () => {
+  const handleAddToCart = (product) => {
+    eventBus.emit('ADD_TO_CART', product);
   };
 
   return (
     <div className="product-grid">
-      <h2>Catalogue</h2>
-      <div className="grid">
-        {PRODUCTS.map(p => (
-          <ProductCard key={p.id} product={p} onAdd={handleAdd} />
-        ))}
-      </div>
+      {products.map((product) => (
+        <div key={product.id} className="product-card">
+          <img src={product.image} alt={product.name} className="product-image" />
+          <h3>{product.name}</h3>
+          <p>${product.price.toFixed(2)}</p>
+          <button onClick={() => handleAddToCart(product)}>Add to Cart</button>
+        </div>
+      ))}
     </div>
   );
-}
+};
 
 export default ProductGrid;
