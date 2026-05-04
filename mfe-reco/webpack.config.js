@@ -36,7 +36,15 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      // TODO: configurer ce MFE pour exposer le composant Recommendations
+      name: 'mfe_reco',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './Recommendations': './src/components/Recommendations',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+      },
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',

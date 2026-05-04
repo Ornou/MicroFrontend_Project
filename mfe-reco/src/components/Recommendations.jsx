@@ -7,11 +7,57 @@ function Recommendations() {
   const [recos, setRecos] = useState(PRODUCTS.slice(0, 3));
 
   useEffect(() => {
-    // TODO: adapter les recommandations en fonction du contenu du panier
+    const buildRecommendations = (cartPayload) => {
+      const cartItems = cartPayload?.items || [];
+
+      if (cartItems.length === 0) {
+        setRecos(PRODUCTS.slice(0, 3));
+        return;
+      }
+
+      const cartIds = new Set(cartItems.map((item) => item.id));
+      const selectedCategories = new Set();
+
+      cartItems.forEach((item) => {
+        const match = PRODUCTS.find((product) => product.id === item.id);
+        if (match?.category) {
+          selectedCategories.add(match.category);
+        }
+      });
+
+      const inCategory = PRODUCTS.filter(
+        (product) =>
+          selectedCategories.has(product.category) && !cartIds.has(product.id)
+      );
+
+      const fallback = PRODUCTS.filter(
+        (product) =>
+          !selectedCategories.has(product.category) && !cartIds.has(product.id)
+      );
+
+      setRecos([...inCategory, ...fallback].slice(0, 3));
+    };
+
+    const handleClearCart = () => {
+      setRecos(PRODUCTS.slice(0, 3));
+    };
+
+    eventBus.on('CART_UPDATED', buildRecommendations);
+    eventBus.on('CLEAR_CART', handleClearCart);
+
+    return () => {
+      eventBus.off('CART_UPDATED', buildRecommendations);
+      eventBus.off('CLEAR_CART', handleClearCart);
+    };
   }, []);
 
   const handleAddReco = (product) => {
-    // TODO: ajouter ce produit au panier (meme evenement que ProductGrid)
+    eventBus.emit('ADD_TO_CART', {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: `${product.image}.png`,
+    });
   };
 
   return (
