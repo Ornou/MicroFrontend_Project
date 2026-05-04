@@ -16,6 +16,15 @@
  *   eventBus.off('event:name', callback);
  */
 
+// Helper pour formater l'heure
+const getTimestamp = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+};
+
 class EventBus {
   constructor() {
     this.listeners = {};
@@ -25,13 +34,25 @@ class EventBus {
    * S'abonner a un evenement
    * @param {string} event - Nom de l'evenement
    * @param {Function} callback - Fonction a appeler
+   * @param {string} source - Source du callback (pour logging)
    * @returns {Function} Fonction pour se desabonner
    */
-  on(event, callback) {
+  on(event, callback, source = 'unknown') {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
     }
-    this.listeners[event].push(callback);
+    
+    // Wrapper pour logger la réception
+    const wrappedCallback = (data) => {
+      console.log(`%c[${getTimestamp()}] EVENT BUS ↓ ${event}%c (traité par ${source})`, 'color: #4CAF50; font-weight: bold', 'color: #4CAF50');
+      callback(data);
+    };
+    
+    // Stocker les deux pour pouvoir les désabonner
+    wrappedCallback.__originalCallback = callback;
+    wrappedCallback.__source = source;
+    
+    this.listeners[event].push(wrappedCallback);
 
     // Retourne une fonction pour se desabonner facilement
     return () => this.off(event, callback);
@@ -44,7 +65,9 @@ class EventBus {
    */
   off(event, callback) {
     if (!this.listeners[event]) return;
-    this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+    this.listeners[event] = this.listeners[event].filter(
+      cb => cb.__originalCallback !== callback && cb !== callback
+    );
   }
 
   /**
@@ -53,16 +76,16 @@ class EventBus {
    * @param {any} data - Donnees a transmettre
    */
   emit(event, data) {
+    // Log l'émission
+    console.log(`%c[${getTimestamp()}] EVENT BUS ↑ ${event}%c ${JSON.stringify(data)}`, 'color: #2196F3; font-weight: bold', 'color: #2196F3');
+    
     if (!this.listeners[event]) return;
-
-    // Log pour debug
-    console.log(`[EventBus] ${event}`, data);
 
     this.listeners[event].forEach(callback => {
       try {
         callback(data);
       } catch (error) {
-        console.error(`[EventBus] Error in listener for ${event}:`, error);
+        console.error(`[${getTimestamp()}] [EventBus] Error in listener for ${event}:`, error);
       }
     });
   }

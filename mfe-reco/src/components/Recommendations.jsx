@@ -42,8 +42,8 @@ function Recommendations() {
       setRecos(PRODUCTS.slice(0, 3));
     };
 
-    eventBus.on('CART_UPDATED', buildRecommendations);
-    eventBus.on('CLEAR_CART', handleClearCart);
+    eventBus.on('CART_UPDATED', buildRecommendations, 'mfe-reco');
+    eventBus.on('CLEAR_CART', handleClearCart, 'mfe-reco');
 
     return () => {
       eventBus.off('CART_UPDATED', buildRecommendations);

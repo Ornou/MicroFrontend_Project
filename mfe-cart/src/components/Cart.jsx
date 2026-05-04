@@ -22,7 +22,7 @@ function Cart() {
       });
     };
 
-    eventBus.on('ADD_TO_CART', addToCart);
+    eventBus.on('ADD_TO_CART', addToCart, 'mfe-cart');
 
     return () => {
       eventBus.off('ADD_TO_CART', addToCart);
