@@ -3,24 +3,42 @@ import './App.css';
 import ErrorBoundary from './ErrorBoundary';
 import eventBus from '../../shared/eventBus';
 
+// Composants de fallback quand un MFE ne peut pas se charger
+const MFENotAvailable = ({ name }) => (
+  <div style={{
+    padding: '20px',
+    background: '#1a0a0a',
+    border: '2px solid #ff8800',
+    borderRadius: '4px',
+    color: '#ffaa44',
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  }}>
+    <p>⚠️ {name} indisponible</p>
+  </div>
+);
+
 // Import des MFEs avec React.lazy()
-// Chaque lazy() inclut un .catch() pour la résilience en cas d'erreur réseau
+// Si le remote n'existe pas, on retourne un composant gracieux au lieu de crasher
 const ProductList = lazy(() =>
-  import('mfe_product/ProductList').catch(() => {
-    throw new Error('Impossible de charger le catalogue');
-  })
+  import('mfe_product/ProductList')
+    .catch(() => ({
+      default: () => <MFENotAvailable name="Catalogue" />,
+    }))
 );
 
 const Cart = lazy(() =>
-  import('mfe_cart/Cart').catch(() => {
-    throw new Error('Impossible de charger le panier');
-  })
+  import('mfe_cart/Cart')
+    .catch(() => ({
+      default: () => <MFENotAvailable name="Panier" />,
+    }))
 );
 
 const Recommendations = lazy(() =>
-  import('mfe_reco/Recommendations').catch(() => {
-    throw new Error('Impossible de charger les recommandations');
-  })
+  import('mfe_reco/Recommendations')
+    .catch(() => ({
+      default: () => <MFENotAvailable name="Recommandations" />,
+    }))
 );
 
 function LoadingFallback({ name }) {
